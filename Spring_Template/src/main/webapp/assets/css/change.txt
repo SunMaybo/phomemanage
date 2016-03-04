@@ -1,0 +1,4 @@
+916 
+	background-image: linear-gradient(to bottom, #F5F4F9 0%, #ECEAF3 100%);去
+	background-repeat: repeat-x; 去
+	border-radius: 6px 6px 0 0;	  去
