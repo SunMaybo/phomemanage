@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta http-equiv="expires" content="0">
+	<title>CellPhone print</title> <script src="${base.contextPath}/js/boot.js"
+		type="text/javascript"></script>
+	<style type="text/css">
+html, body {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+</style>
+</head>
+<body>
+
+	<div style="width: 100%; height: 100%">
+		<div class="mini-toolbar" style="border-bottom: 0; padding: 0px;">
+				<table style="width: 100%;">
+				<tr>
+					<td style="width: 100%;"><span
+						style="padding-left: 3px; text-align: center; margin-left: 20px;"></span>
+						<input id="key" class="mini-textbox" style="width: 120px;"
+						emptyText="search" onenter="searchKey()" /> <a
+						class="mini-button" iconCls="icon-search"
+						style="margin-right: 10px;" onclick="searchKey()">查询</a><a
+						class="mini-button" iconCls="icon-add" onclick="add">添加</a> <a
+						class="mini-button" iconCls="icon-edit" onclick="edit">修改</a> <a
+						class="mini-button" iconCls="icon-search" onclick="get">详细</a>
+						<a class="mini-button" iconCls="icon-remove" onclick="remove">删除</a></td>
+					<td style="white-space: nowrap;"></td>
+				</tr>
+			</table>
+		</div>
+		<div class="mini-fit">
+			<div id="phone-datagrid" class="mini-datagrid"
+				style="width: 100%; height: 100%;" allowResize="false"
+				url="${base.contextPath}/cellphone/finds" idField="id" multiSelect="true"
+				sizeList="[20,50,100,300,500]" pageSize="20" contextMenu=""
+				showColumnsMenu="true">
+				<div property="columns">
+					<div type="indexcolumn" field="indexcolumn" align="right"
+						width="30"></div>
+					<div type="checkcolumn" width="25"></div>
+					<div field="phoneBrand" displayField="phoneBrand" width="130"
+						hideable="true" headerAlign="center" align="left" allowSort="true">
+						手机品牌</div>
+						<div field="phoneModel" displayField="phoneModel" width="260"
+							align="left" headerAlign="center">手机型号</div>
+						<div field="phoneColor" displayField="phoneColor" align="left"
+							width="240" headerAlign="center">手机颜色</div>
+						<div field="client.name" displayField="client.name" align="left" width="240"
+							headerAlign="center">客户</div>
+						<div field="receiver.name" displayField="receiver.name" align="left" width="240"
+							headerAlign="center">签收人</div>
+						<div type="comboboxcolumn" autoShowPopup="true" field="status"
+							displayField="status" align="left" width="240"
+							headerAlign="center">
+							状态 <input property="editor" class="mini-combobox"
+								style="width: 100%;" data="Status" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+	 var Status = [{ id: 1, text: '完好' }, { id:2, text: '损坏'},{ id:3, text: '丢失'}];
+		mini.parse();
+		var grid = mini.get("phone-datagrid");
+
+		grid.load(null, function() {
+		}, function() {
+			alert('数据加载失败，可能是服务器出现异常。');
+		});
+		function add(e) {
+
+			mini.open({
+				url : "${base.contextPath}/web/cellphone/aedit.html",
+				title : "Add ＣellPhone",
+				width : 500,
+				height : 300,
+				showModal : false,
+				onload : function() {
+					var iframe = this.getIFrameEl();
+					var data = {
+						action : "add",
+
+					};
+					iframe.contentWindow.SetData(data);
+				},
+				ondestroy : function(action) {
+					grid.reload();
+				}
+			});
+		}
+		function edit(e) {
+			var row = grid.getSelected();
+			if (row) {
+				mini.open({
+					url : "${base.contextPath}/web/cellphone/edit.html",
+					title : "Display CellPhone",
+					width : 700,
+					height : 450,
+					showModal : false,
+					onload : function() {
+						var iframe = this.getIFrameEl();
+						var data = {
+							action : "edit",
+							id : row.id
+						};
+						iframe.contentWindow.SetData(data);
+					},
+					ondestroy : function(action) {
+						grid.reload();
+					}
+				});
+
+			} else {
+				mini.alert("请选中一条记录", "提示");
+			}
+		}
+		function get(e) {
+			var row = grid.getSelected();
+			if (row) {
+				mini.open({
+					url : "${base.contextPath}/web/cellphone/edit.html",
+					title : "Display CellPhone",
+					width : 700,
+					height : 450,
+					showModal : false,
+					onload : function() {
+						var iframe = this.getIFrameEl();
+						var data = {
+							action : "display",
+							id : row.id
+						};
+						iframe.contentWindow.SetData(data);
+					},
+					ondestroy : function(action) {
+						grid.reload();
+					}
+				});
+
+			} else {
+				mini.alert("请选中一条记录", "提示");
+			}
+		}
+		function remove(e) {
+			var rows = grid.getSelecteds();
+			if (rows.length > 0) {
+				mini.confirm("确定删除选中记录？", "确定？", function(action) {
+					if (action == "ok") {
+						var ids = [];
+						for (var i = 0, l = rows.length; i < l; i++) {
+							var r = rows[i];
+							ids.push(r.id);
+						}
+						var id = ids.join(',');
+						grid.loading("操作中，请稍后......");
+						$.ajax({
+							url : "${base.contextPath}/cellphone/rm?id=" + id,
+							type : 'get',
+							success : function(text) {
+								var data = mini.decode(text);
+								if (data.state == 1) {
+									mini.alert("删除选中记录，操作成功", "提示");
+								} else {
+									mini.alert(date.msg);
+								}
+								grid.reload();
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								grid.unmask();
+								//400,403,500错误已经统一在sys.js处理
+								if (400 == jqXHR.status || 403 == jqXHR.status
+										|| 500 == jqXHR.status)
+									return;
+								var text = "操作失败，" + jqXHR.responseText;
+								mini.alert(text, "提示");
+							}
+						});
+					}
+				});
+			} else {
+				mini.alert("请选中一条记录", "提示");
+			}
+		}
+		function GetData() {
+			var o = grid.getSelected();
+			return o;
+		}
+		function searchKey() {
+			var key = mini.get("key").getFormValue();
+			grid.load({
+				key : key
+			});
+
+		}
+
+		function reset() {
+			var form = new mini.Form("search-form");
+			form.reset();
+		}
+
+		function onOk() {
+			CloseWindow("ok");
+		}
+
+		function onCancel() {
+			CloseWindow("cancel");
+		}
+		function CloseWindow(action) {
+			if (window.CloseOwnerWindow)
+				return window.CloseOwnerWindow(action);
+			else
+				window.close();
+		}
+	</script>
+</body>
+</html>

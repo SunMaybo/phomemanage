@@ -1,0 +1,319 @@
+﻿
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>GREEN</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<link rel="shortcut icon" type="image/x-icon"
+	href="${base.contextPath}/js/images/${site}/fav.ico">
+<script src="${base.contextPath}/js/boot.js" type="text/javascript"></script>
+<script src="${base.contextPath}/js/core.js" type="text/javascript"></script>
+<style type="text/css">
+html, body {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.header {
+	background: url(${base_url}/images/header.gif) repeat-x;
+}
+
+.header div {
+	font-family: 'Trebuchet MS', Arial, sans-serif;
+	font-size: 14px;
+	padding-left: 10px;
+	font-weight: bold;
+	color: #333;
+}
+
+body .header .topNav {
+	position: absolute;
+	right: 5px;
+	top: 10px;
+	font-size: 12px;
+	line-height: 25px;
+}
+
+.header .topNav a {
+	text-decoration: none;
+	color: #222;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 25px;
+	margin-left: 3px;
+	margin-right: 3px;
+}
+
+.Phone {
+	background: url(${base.contextPath}/images/phone.png) no-repeat;
+	width: 48px;
+	height: 48px;
+}
+
+.User {
+	background: url(${base.contextPath}/images/user.png) no-repeat;
+	width: 48px;
+	height: 48px;
+}
+
+.Client {
+	background: url(${base.contextPath}/images/client.png) no-repeat;
+	width: 48px;
+	height: 48px;
+}
+.Pwd {
+	background: url(${base.contextPath}/images/pwd.png) no-repeat;
+	width: 48px;
+	height: 48px;
+}
+
+.header .topNav a:hover {
+	text-decoration: underline;
+	color: Blue;
+}
+
+.mini-layout-region-south img {
+	vertical-align: top;
+}
+</style>
+</head>
+<body>
+	<!--Layout-->
+	<div id="layout1" class="mini-layout"
+		style="width: 100%; height: 100%;">
+		<div class="header" region="north" height="50" showSplit="false" style="background-image: url('${base.contextPath}/images/background.png');"
+			showHeader="false">
+			<div class="logo">
+				<img src="${base.contextPath}/images/logon.png" height="30"
+					style="margin: 10px 0 0 -15px;" />
+				
+			</div>
+			<div class="topNav">
+			<label style="font-size: 20px;margin-right: 500px;color: white;font-family: inherit;">手   机   串   号   管   理   系   统</label>
+				<a class="mini-button" plain="true">${loginName}</a>| <a
+					class="mini-button" plain="true"
+					href="${base.contextPath}/Login.html">退出</a>
+			</div>
+		</div>
+		<div title="south" region="south" showSplit="false" showHeader="false"
+			height="30">
+			<div style="line-height: 28px; text-align: center; cursor: default">
+				Copyright © 格瑞恩电子科技有限公司版权所有</div>
+		</div>
+		<div title="center" region="center" style="border: 0;"
+			bodyStyle="overflow:hidden;">
+			<!--Splitter-->
+			<div class="mini-splitter" style="width: 100%; height: 100%;"
+				borderStyle="border:0;">
+				<div size="160" maxSize="250" minSize="100"
+					showCollapseButton="true" style="border: 0;">
+					<div class="mini-outlookmenu" onitemselect="onItemSelect"
+						isField="id" parentField="uid" textField="text"
+						url="${base.contextPath}/menu?role=${role}"></div>
+				</div>
+				<div showCollapseButton="false" style="border: 0;">
+					<!--Tabs-->
+					<!-- <div id="mainTabs" class="mini-tabs" activeIndex="0"
+						style="width: 100%; height: 100%;" contextMenu="#tabsMenu"
+						plain="false" onactivechanged="onTabsActiveChanged">
+						<div name="first" title="首页" url="${base.contextPath}/web/cellphone/index"></div>
+						 
+					</div> -->
+					<iframe id="frame" frameborder="0" name="main"
+						src="${base.contextPath}/web/cellphone/index"
+						style="width: 100%; height: 100%;" border="0"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		mini.parse();
+		var leftTree = mini.get("leftTree");
+		var tabs = mini.get("mainTabs");
+
+		var currentTab = null;
+		function onTreeBeforeOpen(e) {
+			e.cancel = false;
+		}
+		function refreshLeftTree() {
+			leftTree.load(leftTree.url);
+		}
+		function onBeforeOpen(e) {
+			currentTab = tabs.getTabByEvent(e.htmlEvent);
+			if (!currentTab) {
+				e.cancel = true;
+			}
+		}
+
+		//隐藏掉左侧菜单那些没有任何叶子的父菜单
+		var hideNodes = function() {
+			leftTree.findNodes(function(parent) {
+				var name = parent.name;
+				if (!parent.isLeaf) {
+					var hasChild = false;
+					leftTree.findNodes(function(node) {
+						if (node.id != parent.id && node.isLeaf) {
+							if (node.pidPath) {
+								$.each(node.pidPath.split(","), function(i) {
+									if (this == parent.id) {
+										hasChild = true;
+										return;
+									}
+								});
+							}
+						}
+					});
+					if (!hasChild) {
+						parent.visible = false;
+					}
+				}
+			});
+		}
+		hideNodes();
+		function refreshLeftTree() {
+			leftTree.load(leftTree.url);
+			hideNodes();
+		}
+
+		function onBeforeOpen(e) {
+			currentTab = tabs.getTabByEvent(e.htmlEvent);
+			if (!currentTab) {
+				e.cancel = true;
+			}
+		}
+
+		///////////////////////////
+		function reloadTab() {
+			tabs.reloadTab(currentTab);
+		}
+
+		function closeTab() {
+			tabs.removeTab(currentTab);
+		}
+
+		function closeAllBut() {
+			tabs.removeAll(currentTab);
+		}
+
+		function closeAll() {
+			tabs.removeAll();
+		}
+
+		function closeAllButFirst() {
+			var but = [ currentTab ];
+			but.push(tabs.getTab("first"));
+			tabs.removeAll(but);
+		}
+		function openBlank() {
+			var url = currentTab.url;
+			window.open(url);
+		}
+
+		var tree = mini.get("leftTree");
+
+		function showTab(node) {
+			var id = "tab$" + node.id;
+			var tab = tabs.getTab(id);
+			if (!tab) {
+				tab = {};
+				tab._nodeid = node.id;
+				tab.name = id;
+				tab.title = node.text;
+				tab.showCloseButton = true;
+				tab.url = node.url;
+				tabs.addTab(tab);
+			}
+			tabs.activeTab(tab);
+		}
+
+		function onNodeSelect(e) {
+			var node = e.node;
+			var isLeaf = e.isLeaf;
+			if (isLeaf) {
+				showTab(node);
+				zweb.changeUrl("/?path=" + node.link);
+			}
+		}
+
+		function onItemSelect(e) {
+			var path = "${base.contextPath}";
+			var userId = "${userId}";
+			var role= "${role}";
+			if(role==1){
+				var centerFrame = document.getElementById("frame")
+				var item = e.item;
+				if (item.id == "user") {
+					edit(userId);
+				} else
+					centerFrame.src = "" + path + "/" + item.url;
+			}
+			if(role==2){
+				var centerFrame = document.getElementById("frame")
+				var item = e.item;
+				if (item.id == "pwd") {
+					edit(userId,role);
+				}else
+					centerFrame.src = "" + path + "/" + item.url;
+			}
+			
+		}
+
+		function edit(id,role) {
+			var url="${base.contextPath}/web/user/edit";
+			var h=750;
+			var w=450;
+			if(role==2){
+				url="${base.contextPath}/web/user/edit/pwd";
+				h=400;
+				w=280;
+			}
+			mini.open({
+				url : url,
+				title : "Edit User",
+				width : h,
+				height : w,
+				showModal : false,
+				onload : function() {
+					var iframe = this.getIFrameEl();
+					var data = {
+						action : "edit",
+						id : id,
+						role:role
+					};
+					iframe.contentWindow.SetData(data);
+				},
+				ondestroy : function(action) {
+				
+				}
+			});
+		}
+		function onClick(e) {
+			var text = this.getText();
+		}
+
+		function onQuickClick(e) {
+			tree.expandPath("datagrid");
+			tree.selectNode("datagrid");
+		}
+
+		function onTabsActiveChanged(e) {
+			var tabs = e.sender;
+			var tab = tabs.getActiveTab();
+			if (tab && tab._nodeid) {
+				var node = tree.getNode(tab._nodeid);
+				tree.findNodes(function(node) {
+					if (node.id == tab._nodeid) {
+						tree.selectNode(node);
+						return true;
+					}
+				});
+			}
+		}
+	</script>
+</body>
+</html>

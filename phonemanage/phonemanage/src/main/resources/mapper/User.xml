@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.phonemanage.dao.UserDao">
+	<resultMap type="User" id="userMap">
+		<id column="id" property="id" />
+		<result column="login_name" property="loginName" />
+		<result column="age" property="age" />
+		<result column="passwd" property="passwd" />
+		<result column="name" property="name" />
+		<result column="id_card" property="idCard" />
+		<result column="sex" property="sex" />
+		<result column="phone" property="phone" />
+		<result column="department" property="department" />
+		<result column="status" property="status" />
+		<result column="role" property="role" />
+	</resultMap>
+	<sql id="sql_select">
+		select *
+	</sql>
+	<sql id="select_where">
+		from user
+		<if test="key!=null">
+			where
+			login_name like "%"#{key}"%" or phone like
+			"%"#{key}"%" or name like
+			"%"#{key}"%"
+		</if>
+		<if test="key==null">
+			order by id desc
+			limit #{pageIndex},#{pageSize}
+		</if>
+	</sql>
+	<select id="findById" parameterType="int" resultMap="userMap">
+		select *
+		from user u where u.id=#{id}
+	</select>
+	<insert id="register" parameterType="User">
+		insert into
+		user(login_name,age,passwd,name,id_card,sex,phone,department,status,role)
+		values(#{loginName},#{age},#{passwd},#{name},#{idCard},#{sex},#{phone},#{department},#{status},#{role})
+	</insert>
+	<update id="update" parameterType="User">
+		update user set
+		login_name=#{loginName},age=#{age},passwd=#{passwd},name=#{name},id_card=#{idCard},sex=#{sex},phone=#{phone},department=#{department},status=#{status},role=#{role}
+		where id=#{id}
+	</update>
+	<update id="unfreeze" parameterType="int">
+		update user set status=1
+		where id=#{id} and role=1
+	</update>
+	<update id="freeze" parameterType="int">
+		update user set status=0 where
+		id=#{id} and role=1
+	</update>
+	<select id="login" parameterType="User" resultType="integer">
+		select u.id
+		from user u where u.login_name=#{loginName} and u.passwd=#{passwd} and u.role=#{role} and u.status=1 limit 0,1
+	</select>
+	<select id="findByLoginName" parameterType="string" resultType="integer">
+		select u.id from user u where u.login_name=#{loginName} and u.role=1
+	</select>
+	<delete id="rmove" parameterType="int">
+		delete from user where id=#{id}
+	</delete>
+	<select id="finds" parameterType="SearchForm" resultMap="userMap">
+		<include refid="sql_select"></include>
+		<include refid="select_where"></include>
+	</select>
+	<select id="totals" resultType="Integer">
+	    select count(*) from user 
+	</select>
+</mapper>

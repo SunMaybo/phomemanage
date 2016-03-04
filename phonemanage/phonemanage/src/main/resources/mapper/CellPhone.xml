@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.phonemanage.dao.CellPhoneDao">
+	<resultMap type="CellPhone" id="cellPhoneMap">
+		<id column="id" property="id" />
+		<result column="phone_brand" property="phoneBrand" />
+		<result column="phone_model" property="phoneModel" />
+		<result column="phone_color" property="phoneColor" />
+		<result column="create_date" property="createDate" />
+		<result column="service_life" property="serviceLife" />
+		<result column="Qr_code" property="qrCode" />
+		<result column="status" property="status" />
+		<result column="IMEI" property="imei" />
+		<association property="client" javaType="Client">
+			<id column="cl_id" property="id" />
+			<result column="cl_code" property="code" />
+			<result column="cl_address" property="address" />
+			<result column="cl_name" property="name" />
+			<result column="cl_id_card" property="idCard" />
+			<result column="cl_phone" property="phone" />
+		</association>
+		<association property="receiver" javaType="Client">
+			<id column="cli_id" property="id" />
+			<result column="cli_code" property="code" />
+			<result column="cli_address" property="address" />
+			<result column="cli_name" property="name" />
+			<result column="cli_id_card" property="idCard" />
+			<result column="cli_phone" property="phone" />
+		</association>
+	</resultMap>
+	<sql id="sql_select">
+		select c.id,c.phone_brand,c.phone_model,c.phone_color,c.create_date,c.service_life,c.status,c.IMEI,cl.id as cl_id,cl.code as cl_code,cl.address as
+		cl_address,cl.name as cl_name,cl.id_card as cl_id_card,cl.phone as
+		cl_phone,cli.id as cli_id,cli.code as cli_code,cli.address as
+		cli_address,cli.name as cli_name,cli.id_card as cli_id_card,cli.phone
+		as cli_phone
+	</sql>
+	<sql id="select_where">
+		from cellphone c left join client cl on c.client=cl.id left join
+		client cli on c.receiver=cli.id
+		<if test="key!=null">
+			where phone_brand like "%"#{key}"%" or phone_model like
+			"%"#{key}"%" or IMEI like
+			"%"#{key}"%"
+		</if>
+		order by id desc limit #{pageIndex},#{pageSize}
+	</sql>
+	<select id="findById" parameterType="int" resultMap="cellPhoneMap">
+		select
+		c.id,c.phone_brand,c.phone_model,c.phone_color,c.create_date,c.service_life,c.status,c.IMEI,cl.id as cl_id,cl.code as cl_code,cl.address as cl_address,cl.name
+		as cl_name,cl.id_card as cl_id_card,cl.phone as cl_phone,cli.id as
+		cli_id,cli.code as cli_code,cli.address as cli_address,cli.name as
+		cli_name,cli.id_card as cli_id_card,cli.phone as cli_phone from
+		cellphone c left join client cl on c.client=cl.id left join client cli
+		on c.receiver=cli.id where c.id=#{id}
+	</select>
+	<select id="findByIMEI" parameterType="string" resultType="integer">
+		select c.id from cellphone c where c.IMEI=#{IMEI}
+	</select>
+	<insert id="add" parameterType="CellPhone">
+		insert into
+		cellphone(phone_brand,phone_model,phone_color,create_date,service_life,Qr_code,status,IMEI,client,receiver)
+		values(#{phoneBrand},#{phoneModel},#{phoneColor},#{createDate},#{serviceLife},#{qrCode},#{status},#{imei},#{client.id},#{receiver.id})
+	</insert>
+	<update id="update" parameterType="CellPhone">
+		update cellphone set
+		phone_brand=#{phoneBrand},phone_model=#{phoneModel},phone_color=#{phoneColor},create_date=#{createDate},service_life=#{serviceLife},Qr_code=#{qrCode},status=#{status},IMEI=#{imei},client=#{client.id},receiver=#{receiver.id}
+		where id=#{id}
+	</update>
+	<delete id="rmove" parameterType="int">
+		delete from cellphone where
+		id=#{id}
+	</delete>
+	<select id="finds" parameterType="SearchForm" resultMap="cellPhoneMap">
+		<include refid="sql_select"></include>
+		<include refid="select_where"></include>
+	</select>
+	<select id="findQr" parameterType="int" resultMap="cellPhoneMap">
+	    select Qr_code from cellphone where id=#{id}
+	</select>
+	<select id="findByClient" parameterType="int" resultType="integer">
+	    select c.id from cellphone c where c.client=#{id} or c.receiver=#{id}
+	</select>
+	<select id="findTotalByStatus" parameterType="integer" resultType="integer">
+	    select count(*) from cellphone  where status=#{status}
+	</select>
+	<select id="findTotalByBrand" parameterType="string" resultType="integer">
+	     select count(*) from cellphone c where c.phone_brand=#{brand}
+	</select>
+	<select id="findTotalByAddress" parameterType="string" resultType="integer">
+	    select count(*) from cellphone c left join client cl on c.client=cl.id where cl.city=#{address}
+	</select>
+	<select id="findStatus" resultType="Integer">
+	    select distinct status from cellphone 
+	</select>
+	<select id="findBrands" resultType="string">
+	    select distinct phone_brand from cellphone
+	</select>
+		<select id="findCitys" resultType="string">
+	    select distinct cl.city from cellphone c left join client cl on c.client=cl.id 
+	</select>
+		<select id="totals" resultType="Integer">
+	    select count(*) from cellphone 
+	</select>
+</mapper>
